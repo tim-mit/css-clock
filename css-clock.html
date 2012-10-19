@@ -1,0 +1,251 @@
+<!doctype html>
+<html>
+	<head>
+		<style type="text/css">
+			.clockface {
+				height: 400px;
+				width: 400px;
+				margin-left: auto;
+				margin-right: auto;
+				border-radius: 50%;
+				border-style: solid;
+				border-color: #333;
+				border-width: 10px;
+				position: relative;
+			}
+			.seconds-hand {
+				background-color: darkred;
+				position: absolute;
+				top: 200px;
+				left: 200px;
+				height: 3px;
+				width: 200px;
+				margin-top: -1px;
+				margin-left: -10px;
+			}
+			.seconds-start {
+				-webkit-animation-name: seconds-go;
+				-webkit-animation-duration: 60000ms;
+				-webkit-animation-iteration-count: infinite;
+				-webkit-animation-timing-function: linear;
+
+				-moz-animation-name: seconds-go;
+				-moz-animation-duration: 60000ms;
+				-moz-animation-iteration-count: infinite;
+				-moz-animation-timing-function: linear;
+
+				-ms-animation-name: seconds-go;
+				-ms-animation-duration: 60000ms;
+				-ms-animation-iteration-count: infinite;
+				-ms-animation-timing-function: linear;
+
+				-o-animation-name: seconds-go;
+				-o-animation-duration: 60000ms;
+				-o-animation-iteration-count: infinite;
+				-o-animation-timing-function: linear;
+			}
+			.minutes-hand {
+				background-color: #333;
+				position: absolute;
+				top: 200px;
+				left: 200px;
+				height: 7px;
+				width: 180px;
+				margin-top: -3px; 
+				margin-left: -20px;
+			}
+			.minutes-start {
+				-webkit-animation-name: minutes-go;
+				-webkit-animation-duration: 3600000ms;
+				-webkit-animation-iteration-count: infinite;
+				-webkit-animation-timing-function: linear;
+
+				-moz-animation-name: minutes-go;
+				-moz-animation-duration: 3600000ms;
+				-moz-animation-iteration-count: infinite;
+				-moz-animation-timing-function: linear;
+
+				-ms-animation-name: minutes-go;
+				-ms-animation-duration: 3600000ms;
+				-ms-animation-iteration-count: infinite;
+				-ms-animation-timing-function: linear;
+
+				-o-animation-name: minutes-go;
+				-o-animation-duration: 3600000ms;
+				-o-animation-iteration-count: infinite;
+				-o-animation-timing-function: linear;
+			}
+			.hours-hand {
+				background-color: #333;
+				position: absolute;
+				top: 200px;
+				left: 200px;
+				height: 11px;
+				width: 140px;
+				margin-top: -5px;
+				margin-left: -20px;
+			}
+			.hours-start {
+				-webkit-animation-name: hours-go;
+				-webkit-animation-duration: 43200000ms;
+				-webkit-animation-iteration-count: infinite;
+				-webkit-animation-timing-function: linear;
+
+				-moz-animation-name: hours-go;
+				-moz-animation-duration: 43200000ms;
+				-moz-animation-iteration-count: infinite;
+				-moz-animation-timing-function: linear;
+
+				-ms-animation-name: hours-go;
+				-ms-animation-duration: 43200000ms;
+				-ms-animation-iteration-count: infinite;
+				-ms-animation-timing-function: linear;
+
+				-o-animation-name: hours-go;
+				-o-animation-duration: 43200000ms;
+				-o-animation-iteration-count: infinite;
+				-o-animation-timing-function: linear;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="clockface">
+			<div class="hours-hand"></div>
+			<div class="minutes-hand"></div>
+			<div class="seconds-hand"></div>
+		<div/>
+		<script type="text/javascript">
+			var Clockwork = (function () {
+
+				// helper to get dom element via class, returns array to
+				// allow iteration
+				function getClass (name) {
+					var nodelist = document.getElementsByClassName(name),
+					    nodes = [],
+					    i = 0;
+
+					for (; i < nodelist.length; ++i)
+						nodes[i] = nodelist[i];
+
+					return nodes;
+				};
+
+				// add a browser specific css3 keyframe with the from/to
+				// values which have been passed
+				function setKeyframe (data) {
+					var cssext = (function () {
+						function testCSS(prop) {
+							return prop in document.documentElement.style;
+						};
+						if (testCSS("MozBoxSizing"))
+							return "-moz";
+						if (testCSS("WebkitTransform"))
+							return "-webkit";
+						if (testCSS("msTransfor"))
+							return "-ms";
+						if (!!(window.opera && window.opera.version))
+							return "-o";
+
+						return false;
+					})(),
+					rule = "",
+					stylesheet = document.styleSheets[document.styleSheets.length - 1];
+
+					if (!cssext) return;
+
+					rule += "@" + cssext + "-keyframes " + data.name + " {\n\t" + "from {";
+					data.from.forEach (function (val, i2, a2) {
+						rule += "\n\t\t" + cssext + val + ";";
+					});
+					rule += "\n\t}\n\tto {";
+					data.to.forEach (function (val, i3, a3) {
+						rule += "\n\t\t" + cssext + val + ";";
+					});
+					rule += "\n\t}\n}"
+
+					stylesheet.insertRule(rule, stylesheet.cssRules.length);
+
+				};
+
+				function setSeconds () {
+					var from = (new Date().getSeconds() * 6) - 90,
+					    to = (from + 360);
+
+					setKeyframe({
+						"name" : "seconds-go",
+						"from" : [
+							"-transform: rotate(" + from + "deg)",
+							"-transform-origin: 10px 1px"
+						],
+						"to" : [
+							"-transform: rotate(" + to + "deg)",
+							"-transform-origin: 10px 1px"
+						]
+					});
+
+					getClass("seconds-hand").forEach(function (el, idx, val) {
+						el.className += " seconds-start";
+					});
+				};
+
+				function setMinutes () {
+					var minutes = new Date().getMinutes(),
+					    from = (minutes * 6) - 90,
+					    to = (from + 360);
+
+					setKeyframe({
+						"name" : "minutes-go",
+						"from" : [
+							"-transform: rotate(" + from + "deg)",
+							"-transform-origin: 20px 3px"
+						],
+						"to" : [
+							"-transform: rotate(" + to + "deg)",
+							"-transform-origin: 20px 3px"
+						]
+					});
+
+					getClass("minutes-hand").forEach(function (el, idx, val) {
+						el.className += " minutes-start";
+					});
+
+					return minutes;
+				};
+
+				// hour angle is a product of the minutes we are already through that
+				// hour hence the requirement to pass through this value
+				function setHours (minutes) {
+					var hour = (hour = new Date().getHours()) > 12 ? (hour - 12) : hour,
+					    from = ((60 * hour + minutes) * 0.5) - 90,
+					    to = (from + 360);
+
+					setKeyframe({
+						"name" : "hours-go",
+						"from" : [
+							"-transform: rotate(" + from + "deg)",
+							"-transform-origin: 20px 5px"
+						],
+						"to" : [
+							"-transform: rotate(" + to + "deg)",
+							"-transform-origin: 20px 5px"
+						]
+					});
+
+					getClass("hours-hand").forEach(function (el, idx, val) {
+						el.className += " hours-start";
+					});
+
+				};
+
+				setSeconds();
+				setHours(setMinutes());
+
+				// rewind periodically in case things have gone wrong...
+				setInterval(function () {
+					setSeconds();
+					setHours(setMinutes());
+				}, 600000);
+			})();
+		</script>
+	</body>
+</html>
